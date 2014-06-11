@@ -29,6 +29,7 @@ class tomcat::params ( $version = '' ) {
       /(?i:CentOS|RedHat|Scientific)/ => $::lsbmajdistrelease ? {
         5       => '5',
         6       => '6',
+	7	=> '7',
         default => '6',
       },
       /(?i:Amazon)/ => $::lsbmajdistrelease ? {

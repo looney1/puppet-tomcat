@@ -2,7 +2,7 @@
 #
 # File managed by puppet: do not modify!
 
-CATALINA_HOME=/usr/share/tomcat6
+CATALINA_HOME=<%= scope.lookupvar('basedir') %>
 
 # Let's use Tomcat Native Library
 LD_LIBRARY_PATH=/usr/local/tomcat-native/lib:$LD_LIBRARY_PATH
