@@ -5,6 +5,7 @@ define tomcat::instance (
   $http_port,
   $control_port,
   $ajp_port                     = '',
+  $https_port			= '',
   $instance_autorestart         = 'true',
 
   $dirmode                      = '0755',
@@ -18,6 +19,7 @@ define tomcat::instance (
 
   $java_opts                    = '-Djava.awt.headless=true -Xmx128m  -XX:+UseConcMarkSweepGC',
   $catalina_opts                = '',
+  $catalina_home		= '',
   $java_home                    = '',
 
   $catalina_properties_template = '',
@@ -119,13 +121,23 @@ define tomcat::instance (
     default => "-a ${ajp_port}",
   }
 
+  $real_catalina_home = $catalina_home ? {
+    ''      => '',
+    default => "-t ${catalina_home}",
+  }
+
+  $real_https_port = $https_port ? {
+    ''      => '',
+    default => "-s ${https_port}",
+  }
+
   $real_runtime_dir = $runtime_dir ? {
     ''      => '',
     default => "-r ${runtime_dir}/${instance_name}",
   }
 
   $instance_create_instance_cmd_exec = $create_instance_cmd_exec ? {
-    ''      => "/usr/bin/tomcat-instance-create -p ${http_port} -c ${control_port} ${real_ajp_port} -w ${magicword} -o ${instance_owner} -g ${instance_group} ${real_runtime_dir} ${instance_path}",
+    ''      => "/usr/bin/tomcat-instance-create -p ${http_port} -c ${control_port} ${real_https_port} ${real_ajp_port} ${real_catalina_home} -w ${magicword} -o ${instance_owner} -g ${instance_group} ${real_runtime_dir} ${instance_path}",
     default => $create_instance_cmd_exec,
   }
 

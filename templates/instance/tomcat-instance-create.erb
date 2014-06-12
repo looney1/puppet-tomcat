@@ -7,11 +7,13 @@
 PROG=`basename $0`
 TARGET=""
 HPORT=8080
+SPORT=8443
 CPORT=8005
 APORT=8009
 CWORD="SHUTDOWN"
 OWNER=root
 GROUP=root
+CATALINA_HOME="/usr/share/<%= scope.lookupvar('tomcat::params::pkgver') %>"
 warned=0
 warnlowport=0
 
@@ -21,12 +23,14 @@ usage() {
   echo "Options:"
   echo "  -h, --help       Display this help message"
   echo "  -p httpport      HTTP port to be used by Tomcat (default is $HPORT)"
+  echo "  -s secureport    HTTPS port to be used during redirects by Tomcat (default is $SPORT)"
   echo "  -a ajpport       AJP port to be used by Tomcat (default is $APORT)"
   echo "  -c controlport   Server shutdown control port (default is $CPORT)"
   echo "  -w magicword     Word to send to trigger shutdown (default is $CWORD)"
   echo "  -o owner         User that owns the created runtime dirs (default is $OWNER)"
   echo "  -g group         Group that owns the created runtime dirs (default is $GROUP)"
   echo "  -r runtimedir    Optional Path of a directory where to move webapps, work and tmp dirs"
+  echo "  -t tomcathome    Optional Path of the directory CATALINA_HOME, the base of the tomcat installation. (default is ${CATALINA_HOME}"
 }
 
 checkport() {
@@ -70,16 +74,17 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   exit 0
 fi
 
-
-while getopts ":p:c:a:w:o:g:r:h" options; do
+while getopts "p:s:c:a:w:o:g:r:t:h" options; do
   case $options in
     p ) HPORT=$OPTARG ;;
+    s ) SPORT=$OPTARG ;;
     a ) APORT=$OPTARG ;;
     c ) CPORT=$OPTARG ;;
     w ) CWORD=$OPTARG ;;
     o ) OWNER=$OPTARG ;;
     g ) GROUP=$OPTARG ;;
     r ) RUNTIMEDIR=$OPTARG ;;
+    t ) CATALINA_HOME=$OPTARG ;;
     h ) usage;;
     * ) echo "Error: Unknown parameter '$OPTARG'."
         exit 1;;
@@ -89,17 +94,10 @@ done
 shift $(($OPTIND - 1))
 TARGET=$1
 shift
-echo "You are about to create a Tomcat instance in directory '$TARGET'"
 
 # Fail if no target specified
 if [ -z "${TARGET}" ]; then
   echo "Error: No target directory specified (use -d)."
-  exit 1
-fi
-
-# Fail if ports are the same
-if [ "${HPORT}" = "${CPORT}" ]; then
-  echo "Error: HTTP port and control port must be different."
   exit 1
 fi
 
@@ -109,10 +107,20 @@ if [ -d "${TARGET}" ]; then
   exit 1
 fi
 
+echo "You are about to create a Tomcat instance in directory '$TARGET'"
+
 # Check ports
+# Fail if ports are the same
+if [ "${HPORT}" = "${CPORT}" ]; then
+  echo "Error: HTTP port and control port must be different."
+  exit 1
+fi
+
 checkport HTTP "${HPORT}"
 checkport Control "${CPORT}"
 [ -z "${APORT}" ] || checkport AJP "${APORT}"
+
+[ -z "${SPORT}" ] || checkport HTTPS "${SPORT}"
 
 # Ask for confirmation if warnings were printed out
 if [ ${warned} -eq 1 ]; then 
@@ -166,17 +174,19 @@ sed -i -e "s/Connector port=\"8080\"/Connector port=\"${HPORT}\"/;s/Server port=
 
 sed -i -e "s/Connector port=\"8009\"/Connector port=\"${APORT}\"/g" ${TARGET}/conf/server.xml
 
+sed -i -e "s/redirectPort=\"8443\"/redirectPort=\"${SPORT}\"/g" ${TARGET}/conf/server.xml
+
 cat > ${TARGET}/bin/startup.sh << EOT
 #!/bin/sh
 export CATALINA_BASE=${FULLTARGET}
-/usr/share/<%= scope.lookupvar('tomcat::params::pkgver') %>/bin/startup.sh
+${CATALINA_HOME}/bin/startup.sh
 echo "Tomcat started"
 EOT
 
 cat > ${TARGET}/bin/shutdown.sh << EOT
 #!/bin/sh
 export CATALINA_BASE=${FULLTARGET}
-/usr/share/<%= scope.lookupvar('tomcat::params::pkgver') %>/bin/shutdown.sh
+${CATALINA_HOME}/bin/shutdown.sh
 echo "Tomcat stopped"
 EOT
 
