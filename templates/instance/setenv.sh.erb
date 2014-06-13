@@ -2,7 +2,7 @@
 #
 # File managed by puppet: do not modify!
 
-CATALINA_HOME=<%= scope.lookupvar('tomcat::instance::catalina_home') %>
+CATALINA_HOME="<%= @catalina_home %>"
 
 # Let's use Tomcat Native Library
 LD_LIBRARY_PATH=/usr/local/tomcat-native/lib:$LD_LIBRARY_PATH
@@ -10,7 +10,7 @@ export LD_LIBRARY_PATH
 
 # The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
 # defined in $DEFAULT)
-JAVA_HOME=<%= scope.lookupvar('tomcat::instance::java_home') %>
+JAVA_HOME="<%= @java_home %>"
 
 if [ -z "$JAVA_HOME" ]; then 
   JDK_DIRS="/usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-1.5.0-sun /usr/lib/j2sdk1.5-sun /usr/lib/j2sdk1.5-ibm"
@@ -29,7 +29,7 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 # Default Java options
-JAVA_OPTS=<%= scope.lookupvar('tomcat::instance::java_opts') %>
+JAVA_OPTS="<%= @java_opts %>"
 
 if [ -z "$JAVA_OPTS" ]; then
 	JAVA_OPTS="-Djava.awt.headless=true -Xmx128M -XX:+UseCompressedOops"

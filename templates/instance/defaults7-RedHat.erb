@@ -23,7 +23,7 @@ JAVA_HOME=<%= @java_home %>
 
 # Where your tomcat installation lives
 CATALINA_BASE="/var/lib/tomcat7-<%= @instance_name %>"
-CATALINA_HOME="<%= scope.lookupvar('basedir') %>"
+CATALINA_HOME="<%= @catalina_home %>"
 #JASPER_HOME="/usr/share/tomcat7"
 #CATALINA_TMPDIR="/var/cache/tomcat7/temp"
 
