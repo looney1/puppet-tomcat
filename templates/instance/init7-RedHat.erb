@@ -55,16 +55,18 @@ if [ -r "/etc/sysconfig/${NAME}" ]; then
 fi
 
 # Define which connector port to use
-CONNECTOR_PORT="${CONNECTOR_PORT:-8080}"
+# CONNECTOR_PORT="${CONNECTOR_PORT:-8080}"
 
 # Path to the tomcat launch script
-TOMCAT_SCRIPT=<%= @catalina_home %>/bin/catalina.sh
+#TOMCAT_SCRIPT=<%= @catalina_home %>/bin/catalina.sh
+CATALINA_BASE=<%= @catalina_base %>
 
 # Tomcat program name
 TOMCAT_PROG="${NAME}"
         
 # Define the tomcat username
-TOMCAT_USER="${TOMCAT_USER:-tomcat}"
+#TOMCAT_USER="${TOMCAT_USER:-tomcat}"
+TOMCAT_USER=<%= @process_user %> 
 
 # Define the tomcat log file
 TOMCAT_LOG="${TOMCAT_LOG:-/var/log/tomcat7/${NAME}-initd.log}"
@@ -134,7 +136,7 @@ function start() {
             >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
     else
        
-       [ "$RETVAL" -eq "0" ] && $SU - $TOMCAT_USER -c "${TOMCAT_SCRIPT} start" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
+       [ "$RETVAL" -eq "0" ] && $SU - $TOMCAT_USER -c "${CATALINA_BASE}/bin/startup.sh" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
     fi
     if [ "$RETVAL" -eq "0" ]; then 
         log_success_msg
@@ -153,7 +155,7 @@ function stop() {
       parseOptions
       if [ "$RETVAL" -eq "0" ]; then
          touch /var/lock/subsys/${NAME} 2>&1 || RETVAL="4"
-         [ "$RETVAL" -eq "0" ] && $SU - $TOMCAT_USER -c "${TOMCAT_SCRIPT} stop" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
+         [ "$RETVAL" -eq "0" ] && $SU - $TOMCAT_USER -c "${CATALINA_BASE}/bin/shutdown.sh" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
       fi
       if [ "$RETVAL" -eq "0" ]; then
          count="0"
