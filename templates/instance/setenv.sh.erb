@@ -2,7 +2,7 @@
 #
 # File managed by puppet: do not modify!
 
-CATALINA_HOME=<%= scope.lookupvar('basedir') %>
+CATALINA_HOME=<%= scope.lookupvar('tomcat::instance::catalina_home') %>
 
 # Let's use Tomcat Native Library
 LD_LIBRARY_PATH=/usr/local/tomcat-native/lib:$LD_LIBRARY_PATH
@@ -10,21 +10,27 @@ export LD_LIBRARY_PATH
 
 # The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
 # defined in $DEFAULT)
-JDK_DIRS="/usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-1.5.0-sun /usr/lib/j2sdk1.5-sun /usr/lib/j2sdk1.5-ibm"
+JAVA_HOME=<%= scope.lookupvar('tomcat::instance::java_home') %>
 
-# Look for the right JVM to use
-for jdir in $JDK_DIRS; do
-    if [ -r "$jdir/bin/java" -a -z "${JAVA_HOME}" ]; then
-	JAVA_HOME_TMP="$jdir"
+if [ -z "$JAVA_HOME" ]; then 
+  JDK_DIRS="/usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-1.5.0-sun /usr/lib/j2sdk1.5-sun /usr/lib/j2sdk1.5-ibm"
+
+  # Look for the right JVM to use 
+  for jdir in $JDK_DIRS; do
+      if [ -r "$jdir/bin/java" -a -z "${JAVA_HOME}" ]; then  
+  	JAVA_HOME_TMP="$jdir"
 	# checks for a real JDK like environment, needed to check if 
 	# really the java-gcj-compat-dev package is installed
 	if [ -r "$jdir/bin/jdb" ]; then
 	    JAVA_HOME="$JAVA_HOME_TMP"
 	fi
-    fi
-done
+      fi
+  done
+fi
 
 # Default Java options
+JAVA_OPTS=<%= scope.lookupvar('tomcat::instance::java_opts') %>
+
 if [ -z "$JAVA_OPTS" ]; then
 	JAVA_OPTS="-Djava.awt.headless=true -Xmx128M -XX:+UseCompressedOops"
 fi
