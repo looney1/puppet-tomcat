@@ -54,20 +54,9 @@ if [ -r "/etc/sysconfig/${NAME}" ]; then
     . /etc/sysconfig/${NAME}
 fi
 
-# Define which connector port to use
-# CONNECTOR_PORT="${CONNECTOR_PORT:-8080}"
-
-# Path to the tomcat launch script
-#TOMCAT_SCRIPT=<%= @catalina_home %>/bin/catalina.sh
-CATALINA_BASE=<%= @catalina_base %>
-
 # Tomcat program name
 TOMCAT_PROG="${NAME}"
         
-# Define the tomcat username
-#TOMCAT_USER="${TOMCAT_USER:-tomcat}"
-TOMCAT_USER=<%= @process_user %> 
-
 # Define the tomcat log file
 TOMCAT_LOG="${TOMCAT_LOG:-/var/log/tomcat7/${NAME}-initd.log}"
 
@@ -96,7 +85,9 @@ function parseOptions() {
 # rhbz 757632
 function version() {
 	parseOptions
-	$SU - $TOMCAT_USER -c "${TOMCAT_SCRIPT} version" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
+	$SU - $TOMCAT_USER -c "${CATALINA_HOME}/bin/catalina.sh version" || RETVAL="4"
+		
+
 }
 
 # See how we were called.
@@ -198,6 +189,9 @@ function status()
       log_success_msg "${NAME} (pid ${kpid}) is running..."
    elif [ "$RETVAL" -eq "1" ]; then
       log_failure_msg "PID file exists, but process is not running"
+   elif [ "$RETVAL" -eq "3" ]; then
+      log_success_msg "${NAME} is stopped"
+      RETVAL="0"
    else 
       checklockfile
       if [ "$RETVAL" -eq "2" ]; then
