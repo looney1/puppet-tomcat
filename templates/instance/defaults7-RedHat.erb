@@ -57,6 +57,8 @@ CATALINA_PID="/var/run/tomcat7-<%= @instance_name %>.pid"
 # Connector port is 8080 for this tomcat7 instance
 CONNECTOR_PORT="<%= @control_port %>"
 
+TOMCAT_LOG=${CATALINA_BASE}/logs/catalina.out
+
 # If you wish to further customize your tomcat environment,
 # put your own definitions here
 # (i.e. LD_LIBRARY_PATH for some jdbc drivers)
