@@ -10,17 +10,17 @@ define tomcat::instance (
 
   $dirmode                      = '0755',
   $filemode                     = '0644',
-  $owner                        = params_lookup( 'owner' ),
-  $group                        = params_lookup( 'group' ),
+  $owner                        = '',
+  $group                        = '',
 
   $magicword                    = 'SHUTDOWN',
 
   $runtime_dir                  = '',
 
-  $java_opts                    = params_lookup( 'java_opts' ),
+  $java_opts                    = '-Djava.awt.headless=true -Xmx128m  -XX:+UseConcMarkSweepGC',
   $catalina_opts                = '',
-  $catalina_home		= params_lookup( 'catalina_home' ),
-  $java_home                    = params_lookup( 'java_home' ),
+  $catalina_home		= '',
+  $java_home                    = '',
 
   $catalina_properties_template = '',
   $logging_properties_template  = '',
@@ -38,7 +38,7 @@ define tomcat::instance (
   $web_xml_template             = '',
   $manager_xml_template         = 'tomcat/instance/manager.xml.erb',
 
-  $tomcatuser                   = params_lookup ( 'tomcatuser' ),
+  $tomcatuser                   = '',
   $tomcatpassword               = '',
 
   $puppi                        = false,
