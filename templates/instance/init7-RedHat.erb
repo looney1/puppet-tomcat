@@ -213,7 +213,7 @@ function checklockfile()
 {
    if [ -f /var/lock/subsys/${NAME} ]; then
       pid="$(/usr/bin/pgrep -u ${TOMCAT_USER} -f ${NAME})"
-# The lockfile exists but the process is not running
+      # The lockfile exists but the process is not running
       if [ -z "$pid" ]; then
          RETVAL="2"
       fi
@@ -225,16 +225,16 @@ function checkpidfile()
    if [ -f "${CATALINA_PID}" ]; then
       read kpid < ${CATALINA_PID}
       if [ -d "/proc/${kpid}" ]; then
-# The pid file exists and the process is running
+          # The pid file exists and the process is running
           RETVAL="0"
       else
-# The pid file exists but the process is not running
+         # The pid file exists but the process is not running
          RETVAL="1"
-         return
       fi
+   else
+     # pid file does not exist and program is not running
+     RETVAL="3"
    fi
-# pid file does not exist and program is not running
-   RETVAL="3"
 }
 
 function usage()
