@@ -151,7 +151,7 @@ function stop() {
       if [ "$RETVAL" -eq "0" ]; then
          count="0"
 	 checkpidfile
-         if [ "$RETVAL" -eq "0" ] || [ ! -z "$kpdi" ]; then
+         if [ "$RETVAL" -eq "0" -a ! -z "${kpid}" ]; then
             until [ "$(ps --pid $kpid | grep -c $kpid)" -eq "0" ] || \
                       [ "$count" -gt "$SHUTDOWN_WAIT" ]; do
                 if [ "$SHUTDOWN_VERBOSE" = "true" ]; then
