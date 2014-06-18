@@ -179,16 +179,17 @@ sed -i -e "s/redirectPort=\"8443\"/redirectPort=\"${SPORT}\"/g" ${TARGET}/conf/s
 cat > ${TARGET}/bin/startup.sh << EOT
 #!/bin/sh
 export CATALINA_BASE=${FULLTARGET}
-export CATALINA_PID=/var/run/${INSTANCE_NAME}.pid
-${CATALINA_HOME}/bin/startup.sh & echo $$ >> $CATALINA_PID
-echo "Tomcat started"
+export CATALINA_PID=/var/run/tomcat7-${INSTANCE_NAME}.pid
+${CATALINA_HOME}/bin/startup.sh 
+echo "Tomcat started."
 EOT
 
 cat > ${TARGET}/bin/shutdown.sh << EOT
 #!/bin/sh
 export CATALINA_BASE=${FULLTARGET}
+export CATALINA_PID=/var/run/tomcat7-${INSTANCE_NAME}.pid
 ${CATALINA_HOME}/bin/shutdown.sh
-echo "Tomcat stopped"
+echo "Tomcat stopped."
 EOT
 
 chmod a+x ${TARGET}/bin/startup.sh ${TARGET}/bin/shutdown.sh
